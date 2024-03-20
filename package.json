@@ -1,0 +1,19 @@
+{
+  "name": "dev-study",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/hazzuu123/dev-study.git",
+  "author": "하주영 <ju980304@naver.com>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.3",
+    "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
