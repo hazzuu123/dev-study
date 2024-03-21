@@ -32,17 +32,24 @@ reviews.set(id++, {
 // 미들웨어 등록
 app.use(express.json());
 
-// TODO: 전체 리뷰 조회 완성하기
-app.get("/reviews", (req, res) => {});
+// 전체 리뷰 조회 완성하기
+app.get("/reviews", (req, res) => {
+  if (!reviews.size) {
+    return res.status(404).json({ message: "전체 조회할 리뷰가 없습니다." });
+  }
+  let objectReviews = {};
+  reviews.forEach((review, key) => (objectReviews[key] = review));
+  res.status(200).json(objectReviews);
+});
 
 // 특정 리뷰 조회하기
 app.get("/reviews/:id", (req, res) => {
   const { id } = req.params;
   const findReview = reviews.get(Number(id));
   if (!findReview) {
-    res.json({ message: "상점 데이터가 없습니다." });
+    res.status(404).json({ message: "리뷰 데이터가 없습니다." });
   } else {
-    res.json(findReview);
+    res.status(200).json(findReview);
   }
 });
 
@@ -50,23 +57,34 @@ app.get("/reviews/:id", (req, res) => {
 app.post("/reviews", (req, res) => {
   const { title, description, author, image } = req.body;
   if (!title) {
-    res.json({ message: "상점 이름이 없습니다." });
+    res.status(400).json({ message: "상점 이름이 없습니다." });
     return;
   }
   if (!description) {
-    res.json({ message: "리뷰 컨텐츠가 없습니다." });
+    res.status(400).json({ message: "리뷰 컨텐츠가 없습니다." });
     return;
   }
   if (!author) {
-    res.json({ message: "작성자가 없습니다." });
+    res.status(400).json({ message: "작성자가 없습니다." });
     return;
   }
   if (!image) {
-    res.json({ message: "이미지가 없습니다." });
+    res.status(400).json({ message: "이미지가 없습니다." });
     return;
   }
   reviews.set(id++, req.body);
-  res.json(reviews.get(id - 1));
+  res.status(200).json(reviews.get(id - 1));
+});
+
+// 특정 리뷰 삭제하기
+app.delete("/reviews/:id", (req, res) => {
+  const { id } = req.params;
+  const review = reviews.get(Number(id));
+  if (!review) {
+    return res.status(404).json({ message: "삭제할 리뷰가 없습니다." });
+  }
+  reviews.delete(Number(id));
+  res.status(204).json({});
 });
 
 app.listen(8000);
