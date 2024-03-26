@@ -1,16 +1,13 @@
 import express from "express";
 
-const app = express();
+const router = express.Router();
 
-// 리뷰 데이터
-let id = 0;
+// 유저 데이터
+let id = 1;
 let db = new Map();
 
-// 미들웨어 등록
-app.use(express.json());
-
-app
-  .route("/users")
+router
+  .route("/")
   // 전체 유저 조회
   .get((req, res) => {
     if (!db.size) {
@@ -39,8 +36,8 @@ app
       .json({ message: `${nickname}님 회원가입이 완료되었습니다.` });
   });
 
-app
-  .route("/users/:id")
+router
+  .route("/:id")
   // 유저 개별 조회
   .get((req, res) => {
     const { id } = req.params;
@@ -84,4 +81,4 @@ app
     res.status(200).json({ message: "회원 탈퇴가 완료되었습니다." });
   });
 
-app.listen(8000);
+export default router;

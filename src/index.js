@@ -1,19 +1,22 @@
 import express from "express";
 
+import UserRouter from "./routes/users.js";
+
 const app = express();
 
 // 리뷰 데이터
-let id = 0;
+let id = 1;
 let reviews = new Map();
 
 // 미들웨어 등록
 app.use(express.json());
 
-// app.route()
-// 전체 리뷰 조회: GET "/reviews"
-// 리뷰 등록: POST "/reviews"
+// 라우터 등록
+app.use("/users", UserRouter);
+
 app
   .route("/reviews")
+  // 전체 리뷰 조회: GET "/reviews"
   .get((req, res) => {
     if (!reviews.size) {
       return res.status(404).json({ message: "전체 조회할 리뷰가 없습니다." });
@@ -22,6 +25,7 @@ app
     reviews.forEach((review, key) => (objectReviews[key] = review));
     res.status(200).json(objectReviews);
   })
+  // 리뷰 등록: POST "/reviews"
   .post((req, res) => {
     const { title, description, author, image } = req.body;
     if (!title) {
@@ -44,10 +48,9 @@ app
     res.status(200).json(reviews.get(id - 1));
   });
 
-// 개별 리뷰 조회: GET "/reviews/:id"
-// 리뷰 삭제: DELETE "/reviews/:id"
 app
   .route("/reviews/:id")
+  // 개별 리뷰 조회: GET "/reviews/:id"
   .get((req, res) => {
     const { id } = req.params;
     const findReview = reviews.get(Number(id));
@@ -57,6 +60,7 @@ app
       res.status(200).json(findReview);
     }
   })
+  // 리뷰 삭제: DELETE "/reviews/:id"
   .delete((req, res) => {
     const { id } = req.params;
     const review = reviews.get(Number(id));
