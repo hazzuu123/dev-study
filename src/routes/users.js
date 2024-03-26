@@ -3,7 +3,6 @@ import express from "express";
 const router = express.Router();
 
 // 유저 데이터
-let id = 1;
 let db = new Map();
 
 router
@@ -25,7 +24,7 @@ router
       res.status(400).json({ message: "요청값이 부족합니다." });
       return;
     }
-    db.set(id++, {
+    db.set(userId, {
       userId,
       password,
       email,
@@ -34,33 +33,24 @@ router
     res
       .status(201)
       .json({ message: `${nickname}님 회원가입이 완료되었습니다.` });
-  });
-
-router
-  .route("/:id")
-  // 유저 개별 조회
-  .get((req, res) => {
-    const { id } = req.params;
-    const user = db.get(Number(id));
-    if (!user) {
-      res.status(404).json({ message: "회원 정보가 없습니다." });
-      return;
-    }
-    res.status(200).json(user);
   })
   // 유저 개별 정보 수정 (PATCH)
   .patch((req, res) => {
-    let { id } = req.params;
-    id = Number(id);
-    const user = db.get(id);
+    let { userId, password, email, nickname } = req.body;
+
+    if (!userId) {
+      res.status(400).json({ message: "요청값이 부족합니다." });
+      return;
+    }
+
+    const user = db.get(userId);
+
     if (!user) {
       res.status(404).json({ message: "회원 정보가 없습니다." });
       return;
     }
 
-    const { password, email, nickname } = req.body;
-
-    db.set(id, {
+    db.set(userId, {
       userId: user.userId,
       password: password || user.password,
       email: email || user.email,
@@ -71,14 +61,40 @@ router
   })
   // 회원 탈퇴
   .delete((req, res) => {
-    const { id } = req.params;
-    const user = db.get(Number(id));
+    const { userId } = req.body;
+
+    if (!userId) {
+      res.status(400).json({ message: "요청값이 부족합니다." });
+      return;
+    }
+
+    const user = db.get(userId);
+
     if (!user) {
       res.status(404).json({ message: "회원 정보가 없습니다." });
       return;
     }
-    db.delete(Number(id));
+    db.delete(userId);
     res.status(200).json({ message: "회원 탈퇴가 완료되었습니다." });
+  });
+
+router
+  .route("/detail")
+  // 유저 개별 조회
+  .get((req, res) => {
+    const { userId } = req.body;
+
+    if (!userId) {
+      res.status(400).json({ message: "요청값이 부족합니다." });
+      return;
+    }
+
+    const user = db.get(userId);
+    if (!user) {
+      res.status(404).json({ message: "회원 정보가 없습니다." });
+      return;
+    }
+    res.status(200).json(user);
   });
 
 export default router;
