@@ -4,9 +4,6 @@ import conn from "../mariadb.js";
 
 const router = express.Router();
 
-// 유저 데이터
-let db = new Map();
-
 router
   .route("/")
   // 전체 유저 조회
