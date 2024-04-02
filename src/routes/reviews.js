@@ -8,9 +8,14 @@ router
   .route("/")
   // 전체 리뷰 조회: GET "/reviews"
   .get((req, res) => {
-    let sql = `SELECT * FROM reviews`;
+    const { userId } = req.body;
+    if (!userId) {
+      res.status(400).json({ message: "작성자 아이디를 제대로 보내주세요." });
+      return;
+    }
+    let sql = `SELECT * FROM reviews WHERE user_id = ?`;
 
-    conn.query(sql, (err, results) => {
+    conn.query(sql, [userId], (err, results) => {
       if (results.length) {
         res.status(200).json(results);
       } else {
