@@ -13,6 +13,7 @@ const validate = (req, res, next) => {
   }
   next();
 };
+
 router
   .route("/")
   // 전체 리뷰 조회: GET "/reviews"
@@ -50,7 +51,7 @@ router
       let values = [userId, title, description];
       conn.query(sql, values, (err, results) => {
         if (err) {
-          res.status(500).json({ message: "데이터 베이스 연동 오류입니다." });
+          res.status(400).json(err);
         }
         res.status(200).json(results);
       });
@@ -85,6 +86,10 @@ router
       let sql = `DELETE FROM reviews WHERE id = ?`;
 
       conn.query(sql, [id], (err, results) => {
+        if (results.affectedRows === 0) {
+          res.status(404).json("message: 존재하지 않는 채널 id입니다.");
+          return;
+        }
         res.status(200).json(results);
       });
     }
