@@ -127,4 +127,28 @@ router
     }
   );
 
+router.post(
+  "/login",
+  [
+    body("email").notEmpty().isString().withMessage("문자열로 보내주세요"),
+    body("password").notEmpty().isString().withMessage("문자열로 보내주세요"),
+    validate,
+  ],
+  (req, res) => {
+    const { email, password } = req.body;
+    let sql = `SELECT * FROM users WHERE email = ?`;
+    conn.query(sql, email, (err, results) => {
+      const loginUser = results[0];
+      if (loginUser && loginUser.password === password) {
+        res
+          .status(200)
+          .json({ message: `${loginUser.nickname}님 로그인 되었습니다.` });
+      } else {
+        res
+          .status(403)
+          .json({ message: `아이디 혹은 비밀번호를 다시 확인해주세요` });
+      }
+    });
+  }
+);
 export default router;
