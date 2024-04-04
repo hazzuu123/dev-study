@@ -1,9 +1,13 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 import conn from "../mariadb.js";
 
 const router = express.Router();
+
+dotenv.config();
 
 const validate = (req, res, next) => {
   const err = validationResult(req);
@@ -127,4 +131,44 @@ router
     }
   );
 
+router.post(
+  "/login",
+  [
+    body("email").notEmpty().isString().withMessage("문자열로 보내주세요"),
+    body("password").notEmpty().isString().withMessage("문자열로 보내주세요"),
+    validate,
+  ],
+  (req, res) => {
+    const { email, password } = req.body;
+    let sql = `SELECT * FROM users WHERE email = ?`;
+
+    conn.query(sql, email, (err, results) => {
+      const loginUser = results[0];
+
+      if (loginUser && loginUser.password === password) {
+        const token = jwt.sign(
+          {
+            email: loginUser.email,
+            nickname: loginUser.nickname,
+          },
+          process.env.PRIVATE_KEY,
+          {
+            expiresIn: "1h",
+            issuer: "hazzuu123",
+          }
+        );
+
+        res.cookie("token", token, { httpOnly: true });
+
+        res
+          .status(200)
+          .json({ message: `${loginUser.nickname}님 로그인 되었습니다.` });
+      } else {
+        res
+          .status(403)
+          .json({ message: `아이디 혹은 비밀번호를 다시 확인해주세요` });
+      }
+    });
+  }
+);
 export default router;
